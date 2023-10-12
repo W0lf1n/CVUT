@@ -58,15 +58,8 @@
 **/Mkfile.old
 **/dkms.conf
 
-### C++ ###
-# Prerequisites
-
 # Compiled Object files
 **/*.slo
-
-# Precompiled Headers
-
-# Compiled Dynamic libraries
 
 # Fortran module files
 **/*.mod
@@ -75,7 +68,4 @@
 # Compiled Static libraries
 **/*.lai
 
-# Executables
-
 # End of https://www.toptal.com/developers/gitignore/api/c,c++
-
