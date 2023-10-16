@@ -12,11 +12,11 @@ typedef struct {
 // This function handle the time format validation
 // sscanf function is used to parse the hour and minute from the input string 'timeStr'
 // The format string '"%2d:%2d"' ensures this format - 00:00
-bool validateTimeFormat(char *timeStr){
+bool isValidTimeFormat(char *timeStr){
     int hour, minute;
     // This IF returns false if the scanned items is not equal to 2
     //          - one for hours, one for minutes
-    if (sscanf(timeStr, "%2d:%2d", $hour, $minute) != 2){
+    if (sscanf(timeStr, "%2d:%2d", &hour, &minute) != 2){
         return false;
     }
     // This IF checks if the time is in right format
@@ -46,7 +46,7 @@ int main(){
     // Zde vytvarim instance struktury TrainSchedule
     // Kazda z techto instanci uklada sve vladni kopie clenu
     TrainSchedule trains[3];
-    char* trainNames[] = {"A", "B", "C"};
+    const char* trainNames[] = {"A", "B", "C"};
 
     // Tento for prochazi array vlaku
     for (int i = 0; i < 3; i++) {
