@@ -32,11 +32,18 @@ void getSchedule(TrainSchedule* train, const char* name){
     train->departure = departureHours * 60 + departureMinutes;
 }
 
-int canTransfer(TrainSchedule* from, TrainSchedule* to){
-    int transferTime = to->departure - from->arrival;
-    return transferTime >= 5 && transferTime <= 180;
-}
 
+int canTransfer(TrainSchedule* from, TrainSchedule* to) {
+    int transferTimeDeparture = to->departure - from->arrival;
+    int transferTimeArrival = to->arrival - from->arrival;
+
+    // Adjust for day rollover at midnight
+    if (transferTimeDeparture < 0) transferTimeDeparture += 24 * 60;
+    if (transferTimeArrival < 0) transferTimeArrival += 24 * 60;
+
+    return ((transferTimeDeparture >= 5 && transferTimeDeparture <= 180) ||
+            (transferTimeArrival >= 5 && transferTimeArrival <= 180));
+}
 
 void findTransfers(TrainSchedule* trains, const char** names, int currentTrain) {
     int transferCount = 0;
