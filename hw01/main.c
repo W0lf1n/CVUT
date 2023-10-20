@@ -1,46 +1,72 @@
 #include <stdio.h>
-#include <stdbool.h>
+#include <stdlib.h>
 
 // Struktura seskupuje ruzne souvisejici datove polozky do jedne logicke jednotky
 // Kazda polozka v 'struct' ma svuj vlastni datovy typ
 // Nazev struktury je definovan na konci - v vem pripade 'TrainSchedule'
 typedef struct {
-    char arrival[6];
-    char departure[6];
+    int arrival;
+    int departure;
 } TrainSchedule;
 
-// This function handle the time format validation
-// sscanf function is used to parse the hour and minute from the input string 'timeStr'
-// The format string '"%2d:%2d"' ensures this format - 00:00
-bool isValidTimeFormat(char *timeStr){
-    int hour, minute;
-    // This IF returns false if the scanned items is not equal to 2
-    //          - one for hours, one for minutes
-    if (sscanf(timeStr, "%2d:%2d", &hour, &minute) != 2){
-        return false;
-    }
-    // This IF checks if the time is in right format
-    if (hour < 0 || hour > 23 || minute < 0 || minute > 59){
-        return false;
-    }
-    return true;
-}
+void getSchedule(TrainSchedule* train, const char* name){
+    int arrivalHours, arrivalMinutes;
+    int departureHours, departureMinutes;
 
-// Funkce ma na vstupu 2 argumenty
-//      'prompt' je pointer na text, ktery chceme uzivateli zobrazit
-//      'timeStr' je pointer, do ktereho se uklada uzivatelsky vstup
-void getTimeInput(char *prompt, char *timeStr){
-    // Vypisuje zpravu uzivateli
-    printf("%s", prompt); 
-
-    // Cte uzivatelsky vstup na standartnim vstupu - stdin
-    fgets(timeStr, 6, stdin);
-
-    // Pokud vstup je nespravny, informuje uzivatele
-    if (!isValidTimeFormat(timeStr)) {
+    printf("Cas prijezdu vlaku %s:\n", name);
+    if (scanf("%d:%d", &arrivalHours, &arrivalMinutes) != 2 
+            || arrivalHours < 0 || arrivalHours >= 24 
+            || arrivalMinutes < 0 || arrivalMinutes >= 60) {
         printf("Nespravny vstup.\n");
+        exit(1);
+    }
+    train->arrival = arrivalHours * 60 + arrivalMinutes;
+
+    printf("Cas odjezdu vlaku %s:\n", name);
+    if (scanf("%d:%d", &departureHours, &departureMinutes) != 2 
+            || departureHours < 0 || departureHours >= 24 
+            || departureMinutes < 0 || departureMinutes >= 60) {
+        printf("Nespravny vstup.\n");
+        exit(1);
+    }
+    train->departure = departureHours * 60 + departureMinutes;
+}
+
+int canTransfer(TrainSchedule* from, TrainSchedule* to){
+    int transferTime = to->departure - from->arrival;
+    return transferTime >= 5 && transferTime <= 180;
+}
+
+
+void findTransfers(TrainSchedule* trains, const char** names, int currentTrain) {
+    int transferCount = 0;
+    char transferNames[3] = "";  // To store the names of trains for transfer
+
+    for (int i = 0; i < 3; ++i) {
+        if (i != currentTrain && canTransfer(&trains[currentTrain], &trains[i])) {
+            transferNames[transferCount] = *names[i];
+            transferCount++;
+        }
+    }
+
+    printf("Z vlaku %s ", names[currentTrain]);
+
+    if (transferCount == 0) {
+        printf("nelze prestupovat.\n");
+    } else if (transferCount == 1) {
+        printf("lze prestoupit na vlak %c.\n", transferNames[0]);
+    } else {
+        printf("lze prestoupit na vlaky %c", transferNames[0]);
+        for (int i = 1; i < transferCount; ++i) {
+            if (i == transferCount - 1) {  // Last transfer
+                printf(" a %c.\n", transferNames[i]);
+            } else {
+                printf(", %c", transferNames[i]);
+            }
+        }
     }
 }
+
 
 int main(){
     // Zde vytvarim instance struktury TrainSchedule
@@ -48,18 +74,13 @@ int main(){
     TrainSchedule trains[3];
     const char* trainNames[] = {"A", "B", "C"};
 
-    // Tento for prochazi array vlaku
-    for (int i = 0; i < 3; i++) {
-        // buffer pro ulozeni retezce vyzvy 
-        char prompt[30];
-
-        // Toto vytvori retezec s vyzvou k zadani casu
-        // trainNames[i] zahrne do zpravy jmeno vlaku, ktereho se cas tyka
-        sprintf(prompt, "Cas prijezdu vlaku %s:\n", trainNames[i]);
-        getTimeInput(prompt, trains[i].arrival);
-
-        sprintf(prompt, "Cas odjezdu vlaku %s:\n", trainNames[i]);
-        getTimeInput(prompt, trains[i].departure);
+    for (int i = 0; i < 3; ++i){
+        getSchedule(&trains[i], trainNames[i]);
     }
+
+    for (int i = 0; i < 3; ++i){
+        findTransfers(trains, trainNames, i);
+    }
+
     return 0;
 }
