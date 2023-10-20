@@ -1,14 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Struktura seskupuje ruzne souvisejici datove polozky do jedne logicke jednotky
-// Kazda polozka v 'struct' ma svuj vlastni datovy typ
-// Nazev struktury je definovan na konci - v vem pripade 'TrainSchedule'
+
+/**
+ * Struktura pro ukládání časů příjezdu a odjezdu vlaků
+ * Časy jsou ukládány ve formátu minut od půlnoci
+ */
 typedef struct {
     int arrival;
     int departure;
 } TrainSchedule;
 
+
+
+/**
+ * Funkce načte od uživatele časy příjezdu a odjezdu pro specifický vlak a uloží je do struktury
+ *
+ * @param train Ukazatel na strukturu TrainSchedule, kam se uloží časy příjezdu a odjezdu
+ * @param name Ukazatel na řetězec reprezenzující název vlaku
+ */
 void getSchedule(TrainSchedule* train, const char* name){
     int arrivalHours, arrivalMinutes;
     int departureHours, departureMinutes;
@@ -32,12 +42,17 @@ void getSchedule(TrainSchedule* train, const char* name){
     train->departure = departureHours * 60 + departureMinutes;
 }
 
-
+/**
+ * Funkce zkontroluje, zda je možné přestoupit z vlaku 'from' na vlak 'to' v rozmezí 5 až 180 minut
+ *
+ * @param from Ukazatel na strukturu TrainSchedule = vlak ze ktereho se prestupuje
+ * @param to Ukazatel na struktuur TrainSchedule = vlak na ktery se prestupuje
+ * @return Vrací 1, pokud je přestup možný, a 0, pokud není
+ */
 int canTransfer(TrainSchedule* from, TrainSchedule* to) {
     int transferTimeDeparture = to->departure - from->arrival;
     int transferTimeArrival = to->arrival - from->arrival;
 
-    // Adjust for day rollover at midnight
     if (transferTimeDeparture < 0) transferTimeDeparture += 24 * 60;
     if (transferTimeArrival < 0) transferTimeArrival += 24 * 60;
 
@@ -45,9 +60,19 @@ int canTransfer(TrainSchedule* from, TrainSchedule* to) {
             (transferTimeArrival >= 5 && transferTimeArrival <= 180));
 }
 
+
+/**
+ * Funkce najde a vypíše možné přestupy z aktuálního vlaku na ostatní vlaky.
+ * Pokud jsou možné přestupy, vypíše názvy vlaků, na které lze přestoupit
+ * Pokud nejsou možné žádné přestupy, vypíše, že z vlaku nelze přestupovat
+ *
+ * @param trains Ukazatel na pole struktur TrainSchedule reprezentující vlaky
+ * @param names Ukazatel na pole názvů vlaků
+ * @param currentTrain Index aktuálního vlaku v poli
+ */
 void findTransfers(TrainSchedule* trains, const char** names, int currentTrain) {
     int transferCount = 0;
-    char transferNames[3] = "";  // To store the names of trains for transfer
+    char transferNames[3] = ""; 
 
     for (int i = 0; i < 3; ++i) {
         if (i != currentTrain && canTransfer(&trains[currentTrain], &trains[i])) {
@@ -65,7 +90,7 @@ void findTransfers(TrainSchedule* trains, const char** names, int currentTrain) 
     } else {
         printf("lze prestoupit na vlaky %c", transferNames[0]);
         for (int i = 1; i < transferCount; ++i) {
-            if (i == transferCount - 1) {  // Last transfer
+            if (i == transferCount - 1) {
                 printf(" a %c.\n", transferNames[i]);
             } else {
                 printf(", %c", transferNames[i]);
@@ -75,9 +100,13 @@ void findTransfers(TrainSchedule* trains, const char** names, int currentTrain) 
 }
 
 
+/**
+ * Pro každý vlak zavolá funkci getSchedule, aby načetla časy příjedu a odjezdu
+ * Poté pro každý vlak zavolá funkci findTransfers, aby zjistila možné přestupy
+ *
+ * @return Vraci 0 po úspěšném dokončení programu
+ */
 int main(){
-    // Zde vytvarim instance struktury TrainSchedule
-    // Kazda z techto instanci uklada sve vladni kopie clenu
     TrainSchedule trains[3];
     const char* trainNames[] = {"A", "B", "C"};
 
