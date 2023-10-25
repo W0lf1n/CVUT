@@ -2,7 +2,14 @@
 #include <stdlib.h>
 
 
-
+/**
+ * @brief Validates the input 
+ *
+ * @param message_count The count of messages.
+ * @param char_count An array representing the count of characters in each message
+ * @param pipe_count An array representing the count of '|' in each message
+ * @param space_count An array representing the ocunt of whitespaces in each message
+ */
 void validateInput(int message_count, int char_count[], int pipe_count[], int space_count[]) {
     if (message_count < 2 
         || char_count[0] == 0 || pipe_count[0] != 1 || space_count[0] > 0
@@ -12,6 +19,12 @@ void validateInput(int message_count, int char_count[], int pipe_count[], int sp
     }
 }
 
+/**
+ * @brief Prints the synchronization time or a failure message
+ *
+ * @param synchronization_time The calculated sync. time
+ *
+ */
 void outputResult(int synchronization_time) {
     if (synchronization_time >= 0) {
         printf("Synchronizace za: %d\n", synchronization_time);
@@ -21,6 +34,13 @@ void outputResult(int synchronization_time) {
 }
 
 
+/**
+ * @brief Calculates the Greatest Common Divisor (GCD) of two numbers
+ *
+ * @param first_message_sum The sum of message units for the first message
+ * @param second_message_sum The sum of message units for the second message
+ * @return The GCD of the two input sums
+ */
 int GCD(int first_message_sum, int second_message_sum){
     int tmp;
 
@@ -37,7 +57,17 @@ int GCD(int first_message_sum, int second_message_sum){
     return first_message_sum;
 }
 
-
+/**
+ * @brief Calculates the synchronization time for the two messages
+ *
+ * This function incrementally increases the synchronization time of each message
+ * until they are equal
+ *
+ * @param message_sum_before An array representing the sum of units before the '|' character
+ * @param message_sum_after An array representing the sum of units after the '|' character
+ * @param message_count The count of messages
+ * @return The synchronization time at which the two messages are in sync.
+ */
 int findSynchronizationTime(int message_sum_before[], int message_sum_after[], int message_count) {
 
     int sync_time[2] = { (message_sum_before[0] + message_sum_after[0]) + message_sum_before[0]
@@ -57,7 +87,12 @@ int findSynchronizationTime(int message_sum_before[], int message_sum_after[], i
 }
 
 
-
+/**
+ * @brief Processes the input, help validates it, and help calculates the sync. time
+ *
+ * This function reads the input, computes the sum of units before and after '|'
+ * and handles different scenarios to output the result
+ */
 void processAndValidateInput() {
     printf("Zpravy:\n");
 
@@ -114,6 +149,11 @@ void processAndValidateInput() {
     outputResult(sync_time);
 }
 
+/**
+ * @brief The main entry point of the program
+ *
+ * @return 0 upon successful execution
+ */
 int main() {
     processAndValidateInput();
 
