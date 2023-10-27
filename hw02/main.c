@@ -30,9 +30,6 @@ long long int GCD(long long int a, long long int b) {
     return GCD(b, a % b);
 }
 
-//long long int LCM(long long int a, long long int b) {
-//    return (a * b) / GCD(a, b);
-//}
 
 /**
  * @brief Calculates the synchronization time for the two messages
@@ -40,9 +37,9 @@ long long int GCD(long long int a, long long int b) {
  * This function incrementally increases the synchronization time of each message
  * until they are equal
  *
- * @param message_sum_before An array representing the sum of units before the '|' character
- * @param message_sum_after An array representing the sum of units after the '|' character
- * @param message_count The count of messages
+ * @param previous_sync_time Synchronization time from previous messages
+ * @param message_sum_before Numbers from last message before |
+ * @param message_sum_after Numbers from last message after |
  * @return The synchronization time at which the two messages are in sync.
  */
 long long int findSynchronizationTime(long long int previous_sync_time, long long int message_sum_before, long long int message_sum_after) {
