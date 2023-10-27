@@ -60,7 +60,7 @@ long long int findSynchronizationTime(long long int previous_sync_time, long lon
 
 
 /**
- * @brief Processes the input, help validates it, and help calculates the sync. time
+     * @brief Processes the input, help validates it, and help calculates the sync. time
  *
  * This function reads the input, computes the sum of units before and after '|'
  * and handles different scenarios to output the result
@@ -73,34 +73,29 @@ void processAndValidateInput() {
     int pipe_count = 0;  // Počet znaků '|' ve zprávě
     long long int message_sum_before = 0;  // Součet jednotek před '|'
     long long int message_sum_after = 0;  // Součet jednotek po '|'
-    long long int GCD_result;
-    long long int sync_time;
+    long long int GCD_result = 0;
+    long long int sync_time = 0;
     long long int previous_sync_time = 0;
-    long long int first_message_sum_before;
-    long long int first_message_sum_after;
+    long long int first_message_sum_before = 0;
+    long long int first_message_sum_after = 0;
 
+    int new_line_count = 0;
     char ch;
     while ((ch = fgetc(stdin)) != EOF) {
 
         if (ch == '\n') {
+            new_line_count++;
             message_count++;
+
+            if (char_count == 0 || pipe_count == 0 || char_count == pipe_count) {
+                printf("Nespravny vstup.\n");
+                exit(1);
+            }
 
             GCD_result = GCD(message_sum_before + message_sum_after, message_sum_before + message_sum_after);
             if ((message_sum_before - message_sum_before) % GCD_result != 0){
                 outputResult(-1);
                 return;
-            }
-            // Check if the | is on end or start of the message
-            for (int i = 0; i < message_count; i++) {
-                    if (char_count == pipe_count || message_sum_before == 0 || message_sum_after == 0) {
-                    outputResult(0);
-                    return;
-                }
-            }
-            
-            if (char_count == 0 || char_count == pipe_count) {
-                printf("Nespravny vstup.\n");
-                exit(1);
             }
 
             if (message_count == 1) {
@@ -108,33 +103,36 @@ void processAndValidateInput() {
                 first_message_sum_after = message_sum_after;
             } else if (message_count == 2) {
 
-                long long int first_message_step = first_message_sum_before + first_message_sum_after;
-                long long int second_message_step = message_sum_before + message_sum_after;
+                if (char_count == pipe_count || message_sum_before == 0 || message_sum_after == 0) {
+                    previous_sync_time = 0;
+                } else{
+                    long long int first_message_step = first_message_sum_before + first_message_sum_after;
+                    long long int second_message_step = message_sum_before + message_sum_after;
 
-                long long int gcd_result = GCD(first_message_step, second_message_step);
+                    long long int gcd_result = GCD(first_message_step, second_message_step);
 
-                if ((first_message_sum_before - message_sum_before) % gcd_result != 0){
-                    outputResult(-1);
-                    return;
-                }
+                    if ((first_message_sum_before - message_sum_before) % gcd_result != 0){
+                        outputResult(-1);
+                        return;
+                    }
 
 
-                long long int lcm_result = (first_message_step / gcd_result) * second_message_step;
+                    long long int lcm_result = (first_message_step / gcd_result) * second_message_step;
 
-                for (long long int t = first_message_sum_before; t <= lcm_result; t += first_message_step) {
-                    if ((t - message_sum_before) % second_message_step == 0){
-                        previous_sync_time = t;
+                    for (long long int t = first_message_sum_before; t <= lcm_result; t += first_message_step) {
+                        if ((t - message_sum_before) % second_message_step == 0){
+                            previous_sync_time = t;
+                        }
+                    }
+
+                    for (long long int t = message_sum_before; t <= lcm_result; t += second_message_step){
+                        if ((t - first_message_sum_before) % first_message_step == 0){
+                            previous_sync_time = t;
+                        }
                     }
                 }
-
-                for (long long int t = message_sum_before; t <= lcm_result; t += second_message_step){
-                    if ((t - first_message_sum_before) % first_message_step == 0){
-                        previous_sync_time = t;
-                    }
-                }
-
             } else {
-                    sync_time = findSynchronizationTime(previous_sync_time, message_sum_before, message_sum_after);
+                sync_time = findSynchronizationTime(previous_sync_time, message_sum_before, message_sum_after);
                 if (sync_time == -1) {
                     outputResult(-1);
                     return;
@@ -147,6 +145,7 @@ void processAndValidateInput() {
             message_sum_before = 0;
             message_sum_after = 0;
         } else {
+            new_line_count = 0;
             char_count++;
             if (ch == '|') {
                 pipe_count++;
@@ -168,10 +167,10 @@ void processAndValidateInput() {
                 printf("Nespravny vstup.\n");
                 exit(1);
             }
-        }
+            }
     }
 
-    if (message_count < 2){
+    if (new_line_count >= 2 || (new_line_count == 1 && message_count == 1) || message_count == 0 || new_line_count == 0) {
         printf("Nespravny vstup.\n");
         exit(1);
     }
@@ -180,7 +179,6 @@ void processAndValidateInput() {
     outputResult(sync_time);
 
 }
-
 /**
  * @brief The main entry point of the program
  *

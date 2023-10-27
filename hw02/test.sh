@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for i in {0..15}
+for i in {0..16}
 do
 
     testcase=$(printf "%04d" $i)
