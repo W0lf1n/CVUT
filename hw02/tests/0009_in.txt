@@ -1,0 +1,3 @@
+aa|aa
+ab|ba
+aaa|aaa

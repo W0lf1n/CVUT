@@ -1,2 +1,2 @@
-acacbb|aaa
+    acacbb|aaa
 cbbc abcb|baa
