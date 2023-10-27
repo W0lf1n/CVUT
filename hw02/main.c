@@ -2,33 +2,15 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-
-/**
- * @brief Validates the input 
- *
- * @param message_count The count of messages.
- * @param char_count An array representing the count of characters in each message
- * @param pipe_count An array representing the count of '|' in each message
- * @param space_count An array representing the ocunt of whitespaces in each message
- */
-void validateInput(int message_count, int char_count[], int pipe_count[], int space_count[]) {
-    if (message_count < 2 
-        || char_count[0] == 0 || pipe_count[0] != 1 || space_count[0] > 0
-        || char_count[1] == 0 || pipe_count[1] != 1 || space_count[1] > 0) {
-        printf("Nespravny vstup.\n");
-        exit(1);
-    }
-}
-
 /**
  * @brief Prints the synchronization time or a failure message
  *
  * @param synchronization_time The calculated sync. time
  *
  */
-void outputResult(int synchronization_time) {
+void outputResult(long long int synchronization_time) {
     if (synchronization_time >= 0) {
-        printf("Synchronizace za: %d\n", synchronization_time);
+        printf("Synchronizace za: %lld\n", synchronization_time);
     } else {
         printf("Nelze dosahnout.\n");
     }
@@ -38,19 +20,19 @@ void outputResult(int synchronization_time) {
 /**
  * @brief Calculates the Greatest Common Divisor (GCD) of two numbers
  *
- * @param first_message_sum The sum of message units for the first message
- * @param second_message_sum The sum of message units for the second message
+ * @param a The sum of message units for the first message
+ * @param b The sum of message units for the second message
  * @return The GCD of the two input sums
  */
-int gcd(int a, int b) {
+long long int GCD(long long int a, long long int b) {
     if (b == 0)
         return a;
-    return gcd(b, a % b);
+    return GCD(b, a % b);
 }
 
-int lcm(int a, int b) {
-    return (a * b) / gcd(a, b);
-}
+//long long int LCM(long long int a, long long int b) {
+//    return (a * b) / GCD(a, b);
+//}
 
 /**
  * @brief Calculates the synchronization time for the two messages
@@ -63,25 +45,17 @@ int lcm(int a, int b) {
  * @param message_count The count of messages
  * @return The synchronization time at which the two messages are in sync.
  */
-int findSynchronizationTime(int message_sum_before[], int message_sum_after[], int message_count) {
-    int step[2] = { message_sum_before[0] + message_sum_after[0], message_sum_before[1] + message_sum_after[1] };
+long long int findSynchronizationTime(long long int previous_sync_time, long long int message_sum_before, long long int message_sum_after) {
+    long long int step_message_current = message_sum_before + message_sum_after;  // Step for the current message
+    long long int lcm_result = (previous_sync_time * step_message_current) / GCD(previous_sync_time, step_message_current);
 
-    int gcd_result = gcd(step[0], step[1]);
-    int lcm_result = (step[0] / gcd_result) * step[1];
-
-    for (int t = message_sum_before[0]; t <= lcm_result; t += step[0]) {
-        if ((t - message_sum_before[1]) % step[1] == 0) {
+    for (long long int t = previous_sync_time; t <= lcm_result; t += previous_sync_time) {
+        if ((t - message_sum_before) % step_message_current == 0) {
             return t;
         }
     }
 
-    for (int t = message_sum_before[1]; t <= lcm_result; t += step[1]) {
-        if ((t - message_sum_before[0]) % step[0] == 0) {
-            return t;
-        }
-    }
-
-    return -1;
+    return -1;  // If synchronization is not possible
 }
 
 
@@ -97,72 +71,117 @@ int findSynchronizationTime(int message_sum_before[], int message_sum_after[], i
 void processAndValidateInput() {
     printf("Zpravy:\n");
 
-    int message_count = 0;
-    int char_count[2] = {0, 0};  // Počet znaků ve zprávě
-    int pipe_count[2] = {0, 0};  // Počet znaků '|' ve zprávě
-    int space_count[2] = {0, 0}; // Počet mezer ve zprávě
-    int message_sum_before[2] = {0, 0};  // Součet jednotek před '|'
-    int message_sum_after[2] = {0, 0};  // Součet jednotek po '|'
+    long int message_count = 0;
+    long long int char_count = 0;  // Počet znaků ve zprávě
+    int pipe_count = 0;  // Počet znaků '|' ve zprávě
+    long long int message_sum_before = 0;  // Součet jednotek před '|'
+    long long int message_sum_after = 0;  // Součet jednotek po '|'
+    long long int GCD_result;
+    long long int sync_time;
+    long long int previous_sync_time = 0;
+    long long int first_message_sum_before;
+    long long int first_message_sum_after;
 
-    while (message_count < 2) {
-        char ch = fgetc(stdin);
-        
+    char ch;
+    while ((ch = fgetc(stdin)) != EOF) {
+
         if (ch == '\n') {
-            if (char_count[message_count] == 0 || char_count[message_count] == pipe_count[message_count]) {
-                printf("Nespravny vstup.\n");
-                exit(1);
-            }
             message_count++;
-            if (message_count < 2) {  // Resetujte počítadla pro druhou zprávu
-                char_count[message_count] = 0;
-                pipe_count[message_count] = 0;
-                space_count[message_count] = 0;
+
+            GCD_result = GCD(message_sum_before + message_sum_after, message_sum_before + message_sum_after);
+            if ((message_sum_before - message_sum_before) % GCD_result != 0){
+                outputResult(-1);
+                return;
             }
-        } else {
-            char_count[message_count]++;
-            if (ch == '|') {
-                pipe_count[message_count]++;
-                if (pipe_count[message_count] >= 2){
-                    printf("Nespravny vstup.\n");
-                        exit(1);
+            // Check if the | is on end or start of the message
+            for (int i = 0; i < message_count; i++) {
+                    if (char_count == pipe_count || message_sum_before == 0 || message_sum_after == 0) {
+                    outputResult(0);
+                    return;
                 }
-            } else if (ch == ' ') {
-                space_count[message_count]++;
+            }
+            
+            if (char_count == 0 || char_count == pipe_count) {
                 printf("Nespravny vstup.\n");
                 exit(1);
-            } else {
-                if (islower(ch) || ch == '|') {
-                    int pulse_length = 1 << (ch - 'a');  // Převod znaku na časovou jednotku
-                    if (pipe_count[message_count] == 0) {  // Před '|'
-                        message_sum_before[message_count] += pulse_length;
-                    } else {  // Po '|'
-                        message_sum_after[message_count] += pulse_length;
+            }
+
+            if (message_count == 1) {
+                first_message_sum_before = message_sum_before;
+                first_message_sum_after = message_sum_after;
+            } else if (message_count == 2) {
+
+                long long int first_message_step = first_message_sum_before + first_message_sum_after;
+                long long int second_message_step = message_sum_before + message_sum_after;
+
+                long long int gcd_result = GCD(first_message_step, second_message_step);
+
+                if ((first_message_sum_before - message_sum_before) % gcd_result != 0){
+                    outputResult(-1);
+                    return;
+                }
+
+
+                long long int lcm_result = (first_message_step / gcd_result) * second_message_step;
+
+                for (long long int t = first_message_sum_before; t <= lcm_result; t += first_message_step) {
+                    if ((t - message_sum_before) % second_message_step == 0){
+                        previous_sync_time = t;
                     }
-                } else {
+                }
+
+                for (long long int t = message_sum_before; t <= lcm_result; t += second_message_step){
+                    if ((t - first_message_sum_before) % first_message_step == 0){
+                        previous_sync_time = t;
+                    }
+                }
+
+            } else {
+                    sync_time = findSynchronizationTime(previous_sync_time, message_sum_before, message_sum_after);
+                if (sync_time == -1) {
+                    outputResult(-1);
+                    return;
+                }
+                previous_sync_time = sync_time;
+            }
+
+            char_count = 0;
+            pipe_count = 0;
+            message_sum_before = 0;
+            message_sum_after = 0;
+        } else {
+            char_count++;
+            if (ch == '|') {
+                pipe_count++;
+                if (pipe_count > 1){
                     printf("Nespravny vstup.\n");
                     exit(1);
                 }
+            } else if (ch == ' ') {
+                printf("Nespravny vstup.\n");
+                exit(1);
+            } else if (islower(ch) || ch == '|') {
+                long long int pulse_length = 1 << (ch - 'a');  // Char to specific number
+                if (pipe_count == 0) {  // Before '|'
+                    message_sum_before += pulse_length;
+                } else {  // After '|'
+                    message_sum_after += pulse_length;
+                }
+            } else {
+                printf("Nespravny vstup.\n");
+                exit(1);
             }
         }
     }
 
-    validateInput(message_count, char_count, pipe_count, space_count);  // Validace zpráv po načtení obou zpráv
-
-    int gcd_result = gcd(message_sum_before[0]+message_sum_after[0], message_sum_before[1] + message_sum_after[1]);
-    if ((message_sum_before[0] - message_sum_before[1]) % gcd_result != 0){
-        outputResult(-1);
-        return;
-    }
-    // Kontrola, zda je znak '|' na začátku nebo na konci některé zprávy
-    for (int i = 0; i < message_count; i++) {
-        if (char_count[i] == pipe_count[i] || message_sum_before[i] == 0 || message_sum_after[i] == 0) {
-            outputResult(0);
-            return;
-        }
+    if (message_count < 2){
+        printf("Nespravny vstup.\n");
+        exit(1);
     }
 
-    int sync_time = findSynchronizationTime(message_sum_before, message_sum_after, message_count);
+    sync_time = previous_sync_time;
     outputResult(sync_time);
+
 }
 
 /**
