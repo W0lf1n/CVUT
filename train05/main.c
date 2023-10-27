@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 int main(){
     char op = 0;
@@ -21,7 +22,7 @@ int main(){
                 printf("Nespravny vstup.\n");
                 exit(1);
             }
-            result = num1 / num2;
+            result = floor(num1 / num2);
             break;
         default:
             printf("Nespravny vstup.\n");
