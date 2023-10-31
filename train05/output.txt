@@ -1,2 +1,2 @@
 Zadejte rovnici:
-Nespravny vstup.
+0.00 != 1
