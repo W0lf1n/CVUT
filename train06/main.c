@@ -3,7 +3,12 @@
 #include <assert.h>
 #endif /* __PROGTEST__ */
 
-
+/**
+ * @brief Functions check if the day in month is valid
+ *
+ * @param year Is year in which we want to check the validation
+ * @param month Is month in which we want to check the validation
+ */
 int isValidDay(int year, int month) {
     if(month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12){
         return 31;
@@ -16,7 +21,13 @@ int isValidDay(int year, int month) {
     }
 }
 
-
+/**
+ * @brief Function calculates the day in the year
+ *
+ * @param day Given day
+ * @param month Given month
+ * @param year Given year
+ */
 int dateToIndex(int day, int month, int year, int *idx) {
     if (year < 2000 || (1 > month || month > 12) || ( 1 > day || day > isValidDay(year, month))) {
 
@@ -37,6 +48,10 @@ int dateToIndex(int day, int month, int year, int *idx) {
 }
 
 #ifndef __PROGTEST__
+
+/**
+ * @brief Main function of the program
+ */
 int main (int argc, char * argv []) {
     int idx;
     assert(dateToIndex( 1,  1, 2000, &idx) == 1 && idx == 1);
