@@ -38,8 +38,8 @@ int dateToIndex(int day, int month, int year, int *idx) {
 
     int sum_day = day;
 
-    for (int i = 1; i < month; i++) {
-        sum_day += isValidDay(year, i);
+    for (int i = 2; i <= month; i++) {
+        sum_day += isValidDay(year, i-1);
     }
 
     *idx = sum_day;
@@ -64,6 +64,13 @@ int main (int argc, char * argv []) {
     assert(dateToIndex( 6,  7, 3600, &idx) == 1 && idx == 188);
     assert(dateToIndex(29,  2, 3600, &idx) == 1 && idx == 60);
     assert(dateToIndex(29,  2, 4000, &idx) == 0);
+    
+    // Nové testovací případy:
+    assert(dateToIndex(19,  9, 248000, &idx) == 1 && idx == 262);
+    assert(dateToIndex( 1,  8, 524000, &idx) == 1 && idx == 213);
+    assert(dateToIndex(31, 10, 640000, &idx) == 1 && idx == 304);
+    assert(dateToIndex(29,  2, 360000, &idx) == 0);
+
     return 0;
 }
 #endif /* __PROGTEST__ */
