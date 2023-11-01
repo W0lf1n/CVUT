@@ -9,16 +9,73 @@ typedef struct
 } TResult;
 #endif /* __PROGTEST__ */
 
-bool isWorkDay ( int y, int m, int d )
-{
-  /* todo */
+
+/**
+ * @brief Functions check if the day in month is valid
+ *
+ * @param year Is year in which we want to check the validation
+ * @param month Is month in which we want to check the validation
+ */
+int isValidDay(int year, int month) {
+    if(month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12){
+        return 31;
+    } else if ((month == 2) && ((year%400==0 && year!=4000) || (year%4==0 && year%100!=0))){
+        return 29;
+    } else if (month == 2){
+        return 28;
+    } else {
+        return 30;
+    }
 }
 
-TResult countDays ( int y1, int m1, int d1,
-                    int y2, int m2, int d2 )
-{
-  /* todo */
+bool isFixedHoliday(int day, int month) {
+    int holidays[12][2] = {
+        {1, 1}, {8, 5}, {5, 7},
+        {6, 7}, {28, 9}, {28, 10},
+        {17, 11}, {24, 12}, {25, 12},
+        {26, 12}  // ostatní pevné svátky
+    };
+    for (int i = 0; i < 12; ++i) {
+        if (day == holidays[i][0] && month == holidays[i][1]) {
+            return true;
+        }
+    }
+    return false;
 }
+
+
+/**
+ * @brief Zeller's congruence
+ *
+ */
+int dayOfWeek(int day, int month, int year){
+    if (month < 3) {
+        month += 12;
+        year -= 1;
+    }
+    int K = year % 100;
+    int J = year / 100;
+    int f = day + ((13*(month + 1)) / 5) + K + (K/4) + (J/4) + (5*J);
+    return f % 7;
+}
+
+
+bool isWorkDay ( int y, int m, int d ) {
+  /* TODO */
+    if (1 > d || day > isValidDay(y, m)) return false;
+    int dow = dayOfWeek(day, month, year);
+    if (dow == 0 || dow == 6) return false;
+    if (isFixedHoliday(day, month)) return false;
+    
+    return true;
+}
+
+
+TResult countDays ( int y1, int m1, int d1,
+                    int y2, int m2, int d2 ) {
+  /* TODO */
+}
+
 
 #ifndef __PROGTEST__
 int main ( int argc, char * argv [] )
