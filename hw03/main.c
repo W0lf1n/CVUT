@@ -11,7 +11,7 @@ typedef struct
 
 
 /**
- * @brief Functions check if the day in month is valid
+ * @brief Check if the day in month is valid
  *
  * @param year Is year in which we want to check the validation
  * @param month Is month in which we want to check the validation
@@ -28,12 +28,20 @@ int isValidDay(int year, int month) {
     }
 }
 
+/**
+ * @brief Check for holidays
+ *
+ * This function check is the date is not a holiday
+ *
+ * @param day Day of the date
+ * @param month Month of the date
+ */
 bool isFixedHoliday(int day, int month) {
     int holidays[12][2] = {
-        {1, 1}, {8, 5}, {5, 7},
+        {1, 1}, {1, 5}, {8, 5}, {5, 7},
         {6, 7}, {28, 9}, {28, 10},
         {17, 11}, {24, 12}, {25, 12},
-        {26, 12}  // ostatní pevné svátky
+        {26, 12}
     };
     for (int i = 0; i < 12; ++i) {
         if (day == holidays[i][0] && month == holidays[i][1]) {
@@ -47,6 +55,12 @@ bool isFixedHoliday(int day, int month) {
 /**
  * @brief Zeller's congruence
  *
+ * This is a algorithm devised by Christian Zeller to calculate
+ * the day of the week for any Gregorian calender date.
+ *
+ * @param day Day of the date
+ * @param month Month of the date
+ * @param year Year of the date
  */
 int dayOfWeek(int day, int month, int year){
     if (month < 3) {
@@ -61,8 +75,20 @@ int dayOfWeek(int day, int month, int year){
 }
 
 
+/**
+ * @brief Calculates is the day in date is work day
+ *
+ * Function checks if the day in the date is working day.
+ * To achive this, it is using another 3 functions: 
+ *      isValidDay 
+ *      dayOfWeek
+ *      isFixedHoliday
+ * 
+ * @param y Year of the date
+ * @param m Month of the date
+ * @param d Day of the date
+ */
 bool isWorkDay ( int y, int m, int d ) {
-  /* TODO */
     if (y < 2000 || 1 > d || d > isValidDay(y, m)) return false;
     int dow = dayOfWeek(d, m, y);
     if (dow == 0 || dow == 6) return false;
@@ -75,6 +101,8 @@ bool isWorkDay ( int y, int m, int d ) {
 TResult countDays ( int y1, int m1, int d1,
                     int y2, int m2, int d2 ) {
   /* TODO */
+    
+
 }
 
 
