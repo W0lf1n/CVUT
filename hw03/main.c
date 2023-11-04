@@ -97,7 +97,14 @@ bool isWorkDay ( int y, int m, int d ) {
     return true;
 }
 
-
+/**
+ * @brief Calculates the total number of days since a reference date (1.1.2000)
+ *
+ * @param year The year of the given date
+ * @param month The month of the given date
+ * @param day The day of the month of the given date
+ * @return The total number of days since 1.1.2000 to the given date
+ */
 int daysSinceReference(int year, int month, int day) {
     static const int monthDays[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     int totalDays = 0;
@@ -119,7 +126,13 @@ int daysSinceReference(int year, int month, int day) {
     return totalDays;
 }
 
-
+/**
+ * @brief Calculates the total number of weekends between a range of days
+ *
+ * @param startDay The day of the week the range starts
+ * @param totalDays The total number of days in the range
+ * @return The total number of weekends within the range
+ */
 int countWeekends(int startDay, int totalDays){
     int weekends = 0;
     int fullWeeks = totalDays / 7;
@@ -138,20 +151,35 @@ int countWeekends(int startDay, int totalDays){
 
 
 /**
+ * @brief Calculates the day of the week for a given date
  *
- *
+ * @param day The day of the month
+ * @param month The month of the year
+ * @param year The year of the date
+ * @return The day of the week (0 = Monday ... 6 = Sunday)
  */
 int holidayDayOfWeek(int day, int month, int year){
     int referenceYear = 2000;
-    int referenceDow = dayOfWeek(day, month, referenceYear);  // den v týdnu v referenčním roce
-    int yearsDifference = year - referenceYear;  // rozdíl let
-    int leapYears = (yearsDifference / 4) - (yearsDifference / 100) + (yearsDifference / 400);  // počet přestupných let
-    int totalShift = yearsDifference + leapYears;  // celkový posun
-    int targetDow = (referenceDow + totalShift) % 7;  // den v týdnu v cílovém roce
+    int referenceDow = dayOfWeek(day, month, referenceYear);
+    int yearsDifference = year - referenceYear;
+    int leapYears = (yearsDifference / 4) - (yearsDifference / 100) + (yearsDifference / 400);
+    int totalShift = yearsDifference + leapYears;
+    int targetDow = (referenceDow + totalShift) % 7;
     return targetDow;
 }
 
 
+/**
+ * @brief Calculates the total days and workdays between two dates
+ *
+ * @param y1 The year of the start date
+ * @param m1 The month of the start date
+ * @param d1 The day of the start date
+ * @param y2 The year of the end date
+ * @param m2 The month of the end date
+ * @param d2 The day of the end date
+ * @return A TResult structure containing the total days and workdays
+ */
 TResult countDays ( int y1, int m1, int d1,
                     int y2, int m2, int d2 ) {
     TResult result;
@@ -172,12 +200,13 @@ TResult countDays ( int y1, int m1, int d1,
     int date1 = daysSinceReference(y1, m1, d1);
     int date2 = daysSinceReference(y2, m2, d2);
     int date1Day = dayOfWeek(d1, m1, y1);
-    int date2Day = dayOfWeek(d2, m2, y2);
+    //int date2Day = dayOfWeek(d2, m2, y2);
     int daysBetweenTwoDates = (date2-date1)+1;
 
     int weekendsBetweenDates = countWeekends(date1Day, daysBetweenTwoDates);
 
-// ----------------------------------------------------------------------------------------------------
+    /** Calculates the holidays between two dates **/
+
     int holidays[11][2] = {
         {1, 1}, {1, 5}, {8, 5}, {5, 7},
         {6, 7}, {28, 9}, {28, 10},
@@ -208,7 +237,8 @@ TResult countDays ( int y1, int m1, int d1,
 
 
 
-    if (yearsDifference){ // !=0
+    if (yearsDifference){
+        // Calculates the holidays in first year
         for (int i = firstHolidayIndex; i < 11; ++i){
         day = holidays[i][0];
         month = holidays[i][1];
@@ -218,7 +248,7 @@ TResult countDays ( int y1, int m1, int d1,
         }
     }
 
-    // Pro roky mezi prvním a posledním rokem
+    // Calculates the holidays between first and last year
     for (int k = 1; k < yearsDifference; ++k) {
         for (int i = 0; i < 11; ++i){
             day = holidays[i][0];
@@ -231,7 +261,7 @@ TResult countDays ( int y1, int m1, int d1,
         }
     }
 
-    // Pro poslední rok
+    // Calculates the holidays in last year
     for (int i = 0; i <= lastHolidayIndex; ++i){
         day = holidays[i][0];
         month = holidays[i][1];
@@ -241,6 +271,7 @@ TResult countDays ( int y1, int m1, int d1,
         }
     }
     } else {
+        // Calculates holidays between 2 dates which has the same year
         for (int i = firstHolidayIndex; i <= lastHolidayIndex; ++i){
             day = holidays[i][0];
             month = holidays[i][1];
@@ -251,21 +282,11 @@ TResult countDays ( int y1, int m1, int d1,
         }
     }
 
-
+    /*********************************************/
     
-// ----------------------------------------------------------------------------------------------------
+
     result.m_TotalDays = daysBetweenTwoDates;
     result.m_WorkDays = daysBetweenTwoDates - totalHolidays - weekendsBetweenDates;
-        printf("Prvni den.mesic.rok : %d.%d.%d \n", d1, m1, y1);
-    printf("Druhy den.mesic.rok : %d.%d.%d \n", d2, m2, y2);
-    printf("Celkove svatku mezi dvema daty: %d\n", totalHolidays);
-    printf("Celkove vikendu mezi dvema daty: %d\n", weekendsBetweenDates);
-    printf("  \n");
-    printf("Celkove dni mezi dvema daty: %d\n", daysBetweenTwoDates);
-    printf("Celkove pracovnich dni:  %d\n", result.m_WorkDays);
-    printf("     \n");
-    printf("********************\n");
-        printf("      \n");
 
     return result;
 }
@@ -294,10 +315,6 @@ int main ( int argc, char * argv [] )
 
   assert ( ! isWorkDay ( 1996,  1,  2 ) );
 
-    printf("-------\n");
-    
-
-    
   r = countDays ( 2023, 11,  1,
                   2023, 11, 30 );
   assert ( r . m_TotalDays == 30 );
