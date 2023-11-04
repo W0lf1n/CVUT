@@ -37,13 +37,13 @@ int isValidDay(int year, int month) {
  * @param month Month of the date
  */
 bool isFixedHoliday(int day, int month) {
-    int holidays[12][2] = {
+    int holidays[11][2] = {
         {1, 1}, {1, 5}, {8, 5}, {5, 7},
         {6, 7}, {28, 9}, {28, 10},
         {17, 11}, {24, 12}, {25, 12},
         {26, 12}
     };
-    for (int i = 0; i < 12; ++i) {
+    for (int i = 0; i < 11; ++i) {
         if (day == holidays[i][0] && month == holidays[i][1]) {
             return true;
         }
@@ -122,12 +122,17 @@ int daysSinceReference(int year, int month, int day) {
 
 int countWeekends(int startDay, int totalDays){
     int weekends = 0;
-    for (int i = 0; i < totalDays; ++i){
+    int fullWeeks = totalDays / 7;
+    weekends += fullWeeks * 2;
+
+    int remainingDays = totalDays % 7;
+    for (int i = 0; i < remainingDays; ++i){
         int currentDay = (startDay + i) % 7;
-        if (currentDay == 6 || currentDay == 0) { // check whether it is saturday or sunday
+        if (currentDay == 6 || currentDay == 0) {
             weekends++;
         }
     }
+
     return weekends;
 }
 
@@ -170,28 +175,10 @@ TResult countDays ( int y1, int m1, int d1,
     int date2Day = dayOfWeek(d2, m2, y2);
     int daysBetweenTwoDates = (date2-date1)+1;
 
-    /** Calculate weekends between two dates **/
-    int fullWeeks = daysBetweenTwoDates / 7;
-    int weekendsBetweenDates = fullWeeks * 2;
-
-    if(date1Day == 6 || date1Day == 0)
-        weekendsBetweenDates++;
-    if(date2Day == 6 || date2Day == 0)
-        weekendsBetweenDates++;
-
-    if((date1Day == 6 || date1Day == 0) && (date2Day == 6 || date2Day == 0)) {
-    int weekendDifference = date1Day - date2Day;
-    if(weekendDifference == 1 || weekendDifference == -1 || weekendDifference == 6 || weekendDifference == -6)
-        weekendsBetweenDates--;
-    }
-    
-    /** ------------------------------------ **/
-
-
-
+    int weekendsBetweenDates = countWeekends(date1Day, daysBetweenTwoDates);
 
 // ----------------------------------------------------------------------------------------------------
-    int holidays[12][2] = {
+    int holidays[11][2] = {
         {1, 1}, {1, 5}, {8, 5}, {5, 7},
         {6, 7}, {28, 9}, {28, 10},
         {17, 11}, {24, 12}, {25, 12},
@@ -206,13 +193,13 @@ TResult countDays ( int y1, int m1, int d1,
     int dow = 0;
     int yearsDifference = y2 - y1;
 
-    for (int i = 0; i < 12; ++i) {
+    for (int i = 0; i < 11; ++i) {
         if (holidays[i][1] > m1 || (holidays[i][1] == m1 && holidays[i][0] >= d1)) {
             firstHolidayIndex = i;
             break;
         }
     }
-    for (int i = 0; i < 12; ++i) {
+    for (int i = 0; i < 11; ++i) {
         if (holidays[i][1] > m2 || (holidays[i][1] == m2 && holidays[i][0] > d2)) {
             break;
         }
@@ -222,7 +209,7 @@ TResult countDays ( int y1, int m1, int d1,
 
 
     if (yearsDifference){ // !=0
-        for (int i = firstHolidayIndex; i < 12; ++i){
+        for (int i = firstHolidayIndex; i < 11; ++i){
         day = holidays[i][0];
         month = holidays[i][1];
         dow = holidayDayOfWeek(day, month, y1);
@@ -233,11 +220,11 @@ TResult countDays ( int y1, int m1, int d1,
 
     // Pro roky mezi prvním a posledním rokem
     for (int k = 1; k < yearsDifference; ++k) {
-        for (int i = 0; i < 12; ++i){
+        for (int i = 0; i < 11; ++i){
             day = holidays[i][0];
             month = holidays[i][1];
             year = y1 + k;
-            dow = holidayDayOfWeek(day, month, year);
+            dow = dayOfWeek(day, month, year);
             if (dow != 0 && dow != 6){
                 totalHolidays++;
             }
@@ -340,7 +327,7 @@ int main ( int argc, char * argv [] )
                   2024, 12, 31 );
   assert ( r . m_TotalDays == 366 );
   assert ( r . m_WorkDays == 254 );
-/*
+
   r = countDays ( 2000,  1,  1,
                   2023, 12, 31 );
   assert ( r . m_TotalDays == 8766 );
@@ -365,7 +352,7 @@ int main ( int argc, char * argv [] )
                   2023,  2, 29 );
   assert ( r . m_TotalDays == -1 );
   assert ( r . m_WorkDays == -1 );
- */ 
+ 
 
   return EXIT_SUCCESS;
 }
