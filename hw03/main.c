@@ -70,7 +70,7 @@ int dayOfWeek(int day, int month, int year){
     int K = year % 100;
     int J = year / 100;
     int f = day + ((13*(month + 1)) / 5) + K + (K/4) + (J/4) + (5*J);
-    int dow = (f - 1) % 7; // Mandatory modify to set day: 0 - monday .. 6 - sunday
+    int dow = (f - 1) % 7; // Mandatory modify to set day: 0 = monday .. 6 = sunday
     return dow == -1 ? 6 : dow; // If the dow is '-1' change it to 6 - it is sunday in non-negative numbers
 }
 
@@ -98,11 +98,189 @@ bool isWorkDay ( int y, int m, int d ) {
 }
 
 
+int daysSinceReference(int year, int month, int day) {
+    static const int monthDays[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    int totalDays = 0;
+    
+    for (int y = 2000; y < year; ++y) {
+        totalDays += (y % 4 == 0 && (y % 100 != 0 || y % 400 == 0)) ? 366 : 365;
+    }
+    
+    for (int m = 0; m < month - 1; ++m) {
+        totalDays += monthDays[m];
+    }
+    
+    totalDays += day;
+    
+    if (month > 2 && (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0))) {
+        totalDays += 1;
+    }
+    
+    return totalDays;
+}
+
+
+int countWeekends(int startDay, int totalDays){
+    int weekends = 0;
+    for (int i = 0; i < totalDays; ++i){
+        int currentDay = (startDay + i) % 7;
+        if (currentDay == 6 || currentDay == 0) { // check whether it is saturday or sunday
+            weekends++;
+        }
+    }
+    return weekends;
+}
+
+
+/**
+ *
+ *
+ */
+int holidayDayOfWeek(int day, int month, int year){
+    int referenceYear = 2000;
+    int referenceDow = dayOfWeek(day, month, referenceYear);  // den v týdnu v referenčním roce
+    int yearsDifference = year - referenceYear;  // rozdíl let
+    int leapYears = (yearsDifference / 4) - (yearsDifference / 100) + (yearsDifference / 400);  // počet přestupných let
+    int totalShift = yearsDifference + leapYears;  // celkový posun
+    int targetDow = (referenceDow + totalShift) % 7;  // den v týdnu v cílovém roce
+    return targetDow;
+}
+
+
 TResult countDays ( int y1, int m1, int d1,
                     int y2, int m2, int d2 ) {
-  /* TODO */
-    
+    TResult result;
+    if ((y1 < 2000 || 1 > d1 || d1 > isValidDay(y1, m1))
+            || y2 < 2000 || 1 > d2 || d2 > isValidDay(y2, m2)){
+        result.m_TotalDays = -1;
+        result.m_WorkDays = -1;
+        return result;
+    }
 
+    if (y1 > y2 || (y1 == y2 && (m1 > m2 || (m1 == m2 && d1 > d2)))) {
+        result.m_TotalDays = -1;
+        result.m_WorkDays = -1;
+        return result;
+    }
+
+
+    int date1 = daysSinceReference(y1, m1, d1);
+    int date2 = daysSinceReference(y2, m2, d2);
+    int date1Day = dayOfWeek(d1, m1, y1);
+    int date2Day = dayOfWeek(d2, m2, y2);
+    int daysBetweenTwoDates = (date2-date1)+1;
+
+    /** Calculate weekends between two dates **/
+    int fullWeeks = daysBetweenTwoDates / 7;
+    int weekendsBetweenDates = fullWeeks * 2;
+
+    if(date1Day == 6 || date1Day == 0)
+        weekendsBetweenDates++;
+    if(date2Day == 6 || date2Day == 0)
+        weekendsBetweenDates++;
+
+    if((date1Day == 6 || date1Day == 0) && (date2Day == 6 || date2Day == 0)) {
+    int weekendDifference = date1Day - date2Day;
+    if(weekendDifference == 1 || weekendDifference == -1 || weekendDifference == 6 || weekendDifference == -6)
+        weekendsBetweenDates--;
+    }
+    
+    /** ------------------------------------ **/
+
+
+
+
+// ----------------------------------------------------------------------------------------------------
+    int holidays[12][2] = {
+        {1, 1}, {1, 5}, {8, 5}, {5, 7},
+        {6, 7}, {28, 9}, {28, 10},
+        {17, 11}, {24, 12}, {25, 12},
+        {26, 12}
+    };
+    int totalHolidays = 0; 
+    int firstHolidayIndex = -1;
+    int lastHolidayIndex = -1;
+    int day = 0;
+    int month = 0;
+    int year = 0;
+    int dow = 0;
+    int yearsDifference = y2 - y1;
+
+    for (int i = 0; i < 12; ++i) {
+        if (holidays[i][1] > m1 || (holidays[i][1] == m1 && holidays[i][0] >= d1)) {
+            firstHolidayIndex = i;
+            break;
+        }
+    }
+    for (int i = 0; i < 12; ++i) {
+        if (holidays[i][1] > m2 || (holidays[i][1] == m2 && holidays[i][0] > d2)) {
+            break;
+        }
+        lastHolidayIndex = i;
+    }
+
+
+
+    if (yearsDifference){ // !=0
+        for (int i = firstHolidayIndex; i < 12; ++i){
+        day = holidays[i][0];
+        month = holidays[i][1];
+        dow = holidayDayOfWeek(day, month, y1);
+        if (dow != 0 && dow != 6){
+            totalHolidays++;
+        }
+    }
+
+    // Pro roky mezi prvním a posledním rokem
+    for (int k = 1; k < yearsDifference; ++k) {
+        for (int i = 0; i < 12; ++i){
+            day = holidays[i][0];
+            month = holidays[i][1];
+            year = y1 + k;
+            dow = holidayDayOfWeek(day, month, year);
+            if (dow != 0 && dow != 6){
+                totalHolidays++;
+            }
+        }
+    }
+
+    // Pro poslední rok
+    for (int i = 0; i <= lastHolidayIndex; ++i){
+        day = holidays[i][0];
+        month = holidays[i][1];
+        dow = holidayDayOfWeek(day, month, y2);
+        if (dow != 0 && dow != 6){
+            totalHolidays++;
+        }
+    }
+    } else {
+        for (int i = firstHolidayIndex; i <= lastHolidayIndex; ++i){
+            day = holidays[i][0];
+            month = holidays[i][1];
+            dow = holidayDayOfWeek(day, month, y1);
+            if (dow != 0 && dow != 6){
+                totalHolidays++;
+            }
+        }
+    }
+
+
+    
+// ----------------------------------------------------------------------------------------------------
+    result.m_TotalDays = daysBetweenTwoDates;
+    result.m_WorkDays = daysBetweenTwoDates - totalHolidays - weekendsBetweenDates;
+        printf("Prvni den.mesic.rok : %d.%d.%d \n", d1, m1, y1);
+    printf("Druhy den.mesic.rok : %d.%d.%d \n", d2, m2, y2);
+    printf("Celkove svatku mezi dvema daty: %d\n", totalHolidays);
+    printf("Celkove vikendu mezi dvema daty: %d\n", weekendsBetweenDates);
+    printf("  \n");
+    printf("Celkove dni mezi dvema daty: %d\n", daysBetweenTwoDates);
+    printf("Celkove pracovnich dni:  %d\n", result.m_WorkDays);
+    printf("     \n");
+    printf("********************\n");
+        printf("      \n");
+
+    return result;
 }
 
 
@@ -129,13 +307,15 @@ int main ( int argc, char * argv [] )
 
   assert ( ! isWorkDay ( 1996,  1,  2 ) );
 
-  /*
+    printf("-------\n");
+    
 
+    
   r = countDays ( 2023, 11,  1,
                   2023, 11, 30 );
   assert ( r . m_TotalDays == 30 );
   assert ( r . m_WorkDays == 21 );
-
+   
   r = countDays ( 2023, 11,  1,
                   2023, 11, 17 );
   assert ( r . m_TotalDays == 17 );
@@ -160,7 +340,7 @@ int main ( int argc, char * argv [] )
                   2024, 12, 31 );
   assert ( r . m_TotalDays == 366 );
   assert ( r . m_WorkDays == 254 );
-
+/*
   r = countDays ( 2000,  1,  1,
                   2023, 12, 31 );
   assert ( r . m_TotalDays == 8766 );
@@ -185,7 +365,7 @@ int main ( int argc, char * argv [] )
                   2023,  2, 29 );
   assert ( r . m_TotalDays == -1 );
   assert ( r . m_WorkDays == -1 );
-  */
+ */ 
 
   return EXIT_SUCCESS;
 }
