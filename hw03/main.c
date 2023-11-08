@@ -288,6 +288,18 @@ TResult countDays ( int y1, int m1, int d1,
     result.m_TotalDays = daysBetweenTwoDates;
     result.m_WorkDays = daysBetweenTwoDates - totalHolidays - weekendsBetweenDates;
 
+    printf("Prvni den.mesic.rok : %d.%d.%d \n", d1, m1, y1);
+    printf("Druhy den.mesic.rok : %d.%d.%d \n", d2, m2, y2);
+    printf("Celkove svatku mezi dvema daty: %d\n", totalHolidays);
+    printf("Celkove vikendu mezi dvema daty: %d\n", weekendsBetweenDates);
+    printf("  \n");
+    printf("Celkove dni mezi dvema daty: %d\n", daysBetweenTwoDates);
+    printf("Celkove pracovnich dni:  %d\n", result.m_WorkDays);
+    printf("     \n");
+    printf("********************\n");
+    printf("      \n");
+
+
     return result;
 }
 
@@ -369,7 +381,10 @@ int main ( int argc, char * argv [] )
                   2023,  2, 29 );
   assert ( r . m_TotalDays == -1 );
   assert ( r . m_WorkDays == -1 );
- 
+
+  r = countDays (2024, 1, 1, 2024, 3, 1);
+  r = countDays (2024, 2, 18, 2024, 2, 28);
+  r = countDays (2024, 1, 1, 2024, 3, 10);
 
   return EXIT_SUCCESS;
 }
