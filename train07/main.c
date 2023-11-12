@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/**
+ * Structure to hold information about political parties,
+ * their vote counts, and the number of seats to be allocated.
+ */
 struct politicalParties {
     int parties;
     char party_name[26];
@@ -8,6 +12,12 @@ struct politicalParties {
     int miners;
 };
 
+/**
+ * Reads and validates input for the number of parties, their names, vote counts,
+ * and the number of seats to be allocated.
+ * 
+ * @param data Pointer to the structure holding the election data.
+ */
 void readInput(struct politicalParties *data){
     /** Reads input for PARTIES **/
     printf("Pocet stran:\n");
@@ -58,6 +68,13 @@ void readInput(struct politicalParties *data){
     /*****************************/
 }
 
+
+/**
+ * Implements the D'Hondt method for seat allocation based on the number of votes.
+ * Allocates seats to parties and prints the allocation results.
+ * 
+ * @param data Pointer to the structure containing the election data.
+ */
 void DHondtMethod(struct politicalParties *data){
     int *seats = (int *)malloc(data->parties * sizeof(int));
     double *preference = (double *)malloc(data->parties * sizeof(double));
@@ -93,6 +110,10 @@ void DHondtMethod(struct politicalParties *data){
     free(preference);
 }
 
+
+/**
+ * Main function: reads input data and computes seat allocation.
+ */
 int main (){
     struct politicalParties data;
     
