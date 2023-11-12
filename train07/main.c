@@ -35,7 +35,11 @@ void readInput(struct politicalParties *data){
     for(int i = 0; i < data->parties; i++){
         char party;
         int votes;
-        scanf(" %c %d", &party, &votes);
+
+        if(scanf(" %c %d", &party, &votes) != 2){
+            printf("Nespravny vstup.\n");
+            exit(1);
+        }
 
         if(party < 'A' || party >= 'A' + data->parties || votes <= 0){
             printf("Nespravny vstup.\n");
