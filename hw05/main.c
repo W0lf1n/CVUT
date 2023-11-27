@@ -75,50 +75,81 @@ void addReview(struct myReviews **reviews, struct dateSum **ratings, char *input
     *isSorted = 0;
 }
 
+void printCombination(struct dateSum **ratings, int *combination, int combinationLength, int currentSum, int targetRating) {
+    if (combinationLength == 0) return;
+
+    printf("%d-%02d-%02d", (*ratings)[combination[0]].year, (*ratings)[combination[0]].month, (*ratings)[combination[0]].day);
+    for (int i = 1; i < combinationLength; i++) {
+        printf(" - %d-%02d-%02d", (*ratings)[combination[i]].year, (*ratings)[combination[i]].month, (*ratings)[combination[i]].day);
+    }
+    printf(" = %d | %d\n", currentSum, targetRating);
+}
+
+
+
+void findCombination(struct dateSum **ratings, int currentIndex, int ratingCount, int *currentCombination, int combinationLength, int currentSum, int targetRating, int *bestSum, int *bestStartIndex, int *bestEndIndex, int start) {
+    if (currentIndex == ratingCount) {
+        printCombination(ratings, currentCombination, combinationLength, currentSum, targetRating); 
+        printf("currentSum %d\n targetRating %d\n\n\n", currentSum, targetRating);
+
+        int currentDiff = abs(currentSum - targetRating);
+        if (currentDiff < abs(*bestSum - targetRating)) {
+            *bestSum = currentSum;
+            *bestStartIndex = start;
+            *bestEndIndex = currentIndex - 1;
+            printf("Got triggered <\n");
+            if (currentDiff == 0) {
+                // TODO
+                return;
+            }
+        } else {
+            // TODO
+        }
+        return; 
+    }
+
+    currentCombination[combinationLength] = currentIndex;
+    findCombination(ratings, currentIndex + 1, ratingCount, currentCombination, combinationLength + 1, currentSum + (*ratings)[currentIndex].totalRating, targetRating, bestSum, bestStartIndex, bestEndIndex, start);
+
+    // Toto volání zkusí kombinaci bez přidání aktuálního prvku
+    findCombination(ratings, currentIndex + 1, ratingCount, currentCombination, combinationLength, currentSum, targetRating, bestSum, bestStartIndex, bestEndIndex, start);
+}
+
+
+void findBestCombination(struct dateSum **ratings, int ratingCount, int targetRating, int *bestSum, int *bestStartIndex, int *bestEndIndex) {
+    int *currentCombination = (int *)malloc(ratingCount * sizeof(int)); // Dynamická alokace
+    *bestSum = INT_MAX;
+    *bestStartIndex = -1;
+    *bestEndIndex = -1;
+
+    findCombination(ratings, 0, ratingCount, currentCombination, 0, 0, targetRating, bestSum, bestStartIndex, bestEndIndex, 0);
+
+    free(currentCombination);
+}
+
 
 void printReviews(struct dateSum **ratings, char *input, int *ratingCount, int *isSorted) {
     if (*ratings == NULL || *ratingCount == 0) {
         printf("Nespravny vstup.\n");
-        return;
+        exit(1);
     }
     if (!*isSorted) {
-        sortDateSum(*ratings, *ratingCount);
+            sortDateSum(*ratings, *ratingCount);
         *isSorted = 1;
     }
 
     int targetRating = atoi(input);
-    int closestDifference = INT_MAX;
-    int startYear = 0, startMonth = 0, startDay = 0;
-    int endYear = 0, endMonth = 0, endDay = 0;
-    int closestTotalRating = 0;
+    int bestSum, bestStartIndex, bestEndIndex;
 
-    for (int i = *ratingCount - 1; i >= 0; i--) {
-        int totalRating = 0;
+    findBestCombination(ratings, *ratingCount, targetRating, &bestSum, &bestStartIndex, &bestEndIndex);
 
-        for (int j = i; j >= 0; j--) {
-            totalRating += (*ratings)[j].totalRating;
-            int currentDiff = abs(totalRating - targetRating);
-
-            if (currentDiff < closestDifference) {
-                closestDifference = currentDiff;
-                closestTotalRating = totalRating;
-                startYear = (*ratings)[j].year;
-                startMonth = (*ratings)[j].month;
-                startDay = (*ratings)[j].day;
-                endYear = (*ratings)[i].year;
-                endMonth = (*ratings)[i].month;
-                endDay = (*ratings)[i].day;
-            }
-
-            if (totalRating >= targetRating) {
-                break;
-            }
-        }
+    if (bestStartIndex != -1) {
+        printf("%d-%02d-%02d - %d-%02d-%02d: %d\n",
+              (*ratings)[bestStartIndex].year, (*ratings)[bestStartIndex].month, (*ratings)[bestStartIndex].day,
+              (*ratings)[bestEndIndex].year, (*ratings)[bestEndIndex].month, (*ratings)[bestEndIndex].day,
+              bestSum);
     }
-
-    printf("%d-%02d-%02d - %d-%02d-%02d: %d\n", startYear, startMonth, startDay, endYear, endMonth, endDay, closestTotalRating);
-}
-
+}   
 
 
 void getUserInput() {
@@ -131,11 +162,10 @@ void getUserInput() {
     while (fgets(inputLine, sizeof(inputLine), stdin) != NULL){
         switch(inputLine[0]){
             case '+':
-                printf("Ulozeno!\n");
                 addReview(&reviews, &ratings, inputLine + 2, &reviewCount, &ratingCount, &isSorted);
                 break;
             case '?':
-                printf("Vypsano full\n");
+                    printf("Vypsano full\n");
                 break;
             case '#':
                 printReviews(&ratings, inputLine + 2, &ratingCount, &isSorted);
