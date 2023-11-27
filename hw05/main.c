@@ -89,25 +89,24 @@ void printCombination(struct dateSum **ratings, int *combination, int combinatio
 
 void findCombination(struct dateSum **ratings, int currentIndex, int ratingCount, int *currentCombination, int combinationLength, int currentSum, int targetRating, int *bestSum, int *bestStartIndex, int *bestEndIndex, int start) {
     if (currentIndex == ratingCount) {
-        //printCombination(ratings, currentCombination, combinationLength, currentSum, targetRating); 
-        //printf("currentSum %d\n targetRating %d\n\n\n", currentSum, targetRating);
-        int minIndex = currentCombination[0];
-        int maxIndex = currentCombination[0];
-        for (int i = 1; i < combinationLength; i++) {
-            int idx = currentCombination[i];
-            if ((*ratings)[idx].year < (*ratings)[minIndex].year ||
-                ((*ratings)[idx].year == (*ratings)[minIndex].year && (*ratings)[idx].month < (*ratings)[minIndex].month) ||
-                ((*ratings)[idx].year == (*ratings)[minIndex].year && (*ratings)[idx].month == (*ratings)[minIndex].month && (*ratings)[idx].day < (*ratings)[minIndex].day)) {
-                minIndex = idx;
-            }
-            if ((*ratings)[idx].year > (*ratings)[maxIndex].year ||
-                ((*ratings)[idx].year == (*ratings)[maxIndex].year && (*ratings)[idx].month > (*ratings)[maxIndex].month) ||
-                ((*ratings)[idx].year == (*ratings)[maxIndex].year && (*ratings)[idx].month == (*ratings)[maxIndex].month && (*ratings)[idx].day > (*ratings)[maxIndex].day)) {
-                maxIndex = idx;
-            }
-        }
         int currentDiff = abs(currentSum - targetRating);
-        if (currentDiff < abs(*bestSum - targetRating)) {
+        if (currentDiff < abs(*bestSum - targetRating) && currentSum != 0) {
+            int minIndex = (combinationLength > 0) ? currentCombination[0] : start;
+            int maxIndex = (combinationLength > 0) ? currentCombination[0] : start;
+            for (int i = 1; i < combinationLength; i++) {
+                int idx = currentCombination[i];
+                if ((*ratings)[idx].year < (*ratings)[minIndex].year ||
+                    ((*ratings)[idx].year == (*ratings)[minIndex].year && (*ratings)[idx].month < (*ratings)[minIndex].month) ||
+                    ((*ratings)[idx].year == (*ratings)[minIndex].year && (*ratings)[idx].month == (*ratings)[minIndex].month && (*ratings)[idx].day < (*ratings)[minIndex].day)) {
+                    minIndex = idx;
+                }
+                if ((*ratings)[idx].year > (*ratings)[maxIndex].year ||
+                    ((*ratings)[idx].year == (*ratings)[maxIndex].year && (*ratings)[idx].month > (*ratings)[maxIndex].month) ||
+                    ((*ratings)[idx].year == (*ratings)[maxIndex].year && (*ratings)[idx].month == (*ratings)[maxIndex].month && (*ratings)[idx].day > (*ratings)[maxIndex].day)) {
+                    maxIndex = idx;
+                }
+            }
+
             *bestSum = currentSum;
             *bestStartIndex = minIndex;
             *bestEndIndex = maxIndex;
@@ -121,8 +120,10 @@ void findCombination(struct dateSum **ratings, int currentIndex, int ratingCount
 }
 
 
+
+
 void findBestCombination(struct dateSum **ratings, int ratingCount, int targetRating, int *bestSum, int *bestStartIndex, int *bestEndIndex) {
-    int *currentCombination = (int *)malloc(ratingCount * sizeof(int)); // Dynamická alokace
+    int *currentCombination = (int *)malloc(ratingCount * sizeof(int)); 
     *bestSum = INT_MAX;
     *bestStartIndex = -1;
     *bestEndIndex = -1;
@@ -139,7 +140,7 @@ void printReviews(struct dateSum **ratings, char *input, int *ratingCount, int *
         exit(1);
     }
     if (!*isSorted) {
-            sortDateSum(*ratings, *ratingCount);
+        sortDateSum(*ratings, *ratingCount);
         *isSorted = 1;
     }
 
@@ -157,9 +158,10 @@ void printReviews(struct dateSum **ratings, char *input, int *ratingCount, int *
 }  
 
 
-void printFullReviews(){
-    // TODO
+void printFullReviews(struct dateSum **ratings, int ratingCount, int targetRating) {
+        // TODO
 }
+
 
 
 void getUserInput() {
@@ -175,7 +177,7 @@ void getUserInput() {
                 addReview(&reviews, &ratings, inputLine + 2, &reviewCount, &ratingCount, &isSorted);
                 break;
             case '?':
-                 printFullReviews();
+                 printFullReviews(&ratings, ratingCount, atoi(inputLine + 2));
                 break;
             case '#':
                 printReviews(&ratings, inputLine + 2, &ratingCount, &isSorted);
