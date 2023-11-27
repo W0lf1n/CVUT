@@ -74,61 +74,47 @@ void addReview(struct myReviews **reviews, struct dateSum **ratings, char *input
 
     *isSorted = 0;
 }
-/*
-void printCombination(struct dateSum **ratings, int *combination, int combinationLength, int currentSum, int targetRating) {
-    if (combinationLength == 0) return;
 
-    printf("%d-%02d-%02d", (*ratings)[combination[0]].year, (*ratings)[combination[0]].month, (*ratings)[combination[0]].day);
-    for (int i = 1; i < combinationLength; i++) {
-        printf(" - %d-%02d-%02d", (*ratings)[combination[i]].year, (*ratings)[combination[i]].month, (*ratings)[combination[i]].day);
-    }
-    printf(" = %d | %d\n", currentSum, targetRating);
-}
-
-*/
-
-void findCombination(struct dateSum **ratings, int currentIndex, int ratingCount, int *currentCombination, int combinationLength, int currentSum, int targetRating, int *bestSum, int *bestStartIndex, int *bestEndIndex, int start) {
+void findCombination(struct dateSum **ratings, int currentIndex, int ratingCount, int *currentCombination, int combinationLength, int currentSum, int targetRating, int *bestSum, int *bestStartIndex, int *bestEndIndex, int *usedIndexes) {
     if (currentIndex == ratingCount) {
         int currentDiff = abs(currentSum - targetRating);
         if (currentDiff < abs(*bestSum - targetRating) && currentSum != 0) {
-            int minIndex = (combinationLength > 0) ? currentCombination[0] : start;
-            int maxIndex = (combinationLength > 0) ? currentCombination[0] : start;
-            for (int i = 1; i < combinationLength; i++) {
+            *bestSum = currentSum;
+            *bestStartIndex = -1; 
+            *bestEndIndex = -1;
+
+            for (int i = 0; i < combinationLength; i++) {
                 int idx = currentCombination[i];
-                if ((*ratings)[idx].year < (*ratings)[minIndex].year ||
-                    ((*ratings)[idx].year == (*ratings)[minIndex].year && (*ratings)[idx].month < (*ratings)[minIndex].month) ||
-                    ((*ratings)[idx].year == (*ratings)[minIndex].year && (*ratings)[idx].month == (*ratings)[minIndex].month && (*ratings)[idx].day < (*ratings)[minIndex].day)) {
-                    minIndex = idx;
+                usedIndexes[idx] = 1;
+                if (*bestStartIndex == -1 || (*ratings)[idx].year < (*ratings)[*bestStartIndex].year ||
+                    ((*ratings)[idx].year == (*ratings)[*bestStartIndex].year && (*ratings)[idx].month < (*ratings)[*bestStartIndex].month) ||
+                    ((*ratings)[idx].year == (*ratings)[*bestStartIndex].year && (*ratings)[idx].month == (*ratings)[*bestStartIndex].month && (*ratings)[idx].day < (*ratings)[*bestStartIndex].day)) {
+                    *bestStartIndex = idx;
                 }
-                if ((*ratings)[idx].year > (*ratings)[maxIndex].year ||
-                    ((*ratings)[idx].year == (*ratings)[maxIndex].year && (*ratings)[idx].month > (*ratings)[maxIndex].month) ||
-                    ((*ratings)[idx].year == (*ratings)[maxIndex].year && (*ratings)[idx].month == (*ratings)[maxIndex].month && (*ratings)[idx].day > (*ratings)[maxIndex].day)) {
-                    maxIndex = idx;
+                if (*bestEndIndex == -1 || (*ratings)[idx].year > (*ratings)[*bestEndIndex].year ||
+                    ((*ratings)[idx].year == (*ratings)[*bestEndIndex].year && (*ratings)[idx].month > (*ratings)[*bestEndIndex].month) ||
+                    ((*ratings)[idx].year == (*ratings)[*bestEndIndex].year && (*ratings)[idx].month == (*ratings)[*bestEndIndex].month && (*ratings)[idx].day > (*ratings)[*bestEndIndex].day)) {
+                    *bestEndIndex = idx;
                 }
             }
-
-            *bestSum = currentSum;
-            *bestStartIndex = minIndex;
-            *bestEndIndex = maxIndex;
         }
         return;
     }
 
     currentCombination[combinationLength] = currentIndex;
-    findCombination(ratings, currentIndex + 1, ratingCount, currentCombination, combinationLength + 1, currentSum + (*ratings)[currentIndex].totalRating, targetRating, bestSum, bestStartIndex, bestEndIndex, start);
-    findCombination(ratings, currentIndex + 1, ratingCount, currentCombination, combinationLength, currentSum, targetRating, bestSum, bestStartIndex, bestEndIndex, start);
+    findCombination(ratings, currentIndex + 1, ratingCount, currentCombination, combinationLength + 1, currentSum + (*ratings)[currentIndex].totalRating, targetRating, bestSum, bestStartIndex, bestEndIndex, usedIndexes);
+    findCombination(ratings, currentIndex + 1, ratingCount, currentCombination, combinationLength, currentSum, targetRating, bestSum, bestStartIndex, bestEndIndex, usedIndexes);
 }
 
 
-
-
-void findBestCombination(struct dateSum **ratings, int ratingCount, int targetRating, int *bestSum, int *bestStartIndex, int *bestEndIndex) {
+void findBestCombination(struct dateSum **ratings, int ratingCount, int targetRating, int *bestSum, int *bestStartIndex, int *bestEndIndex, int **usedIndexes) {
+    *usedIndexes = (int *)calloc(ratingCount, sizeof(int)); 
     int *currentCombination = (int *)malloc(ratingCount * sizeof(int)); 
     *bestSum = INT_MAX;
     *bestStartIndex = -1;
     *bestEndIndex = -1;
 
-    findCombination(ratings, 0, ratingCount, currentCombination, 0, 0, targetRating, bestSum, bestStartIndex, bestEndIndex, 0);
+    findCombination(ratings, 0, ratingCount, currentCombination, 0, 0, targetRating, bestSum, bestStartIndex, bestEndIndex, *usedIndexes);
 
     free(currentCombination);
 }
@@ -146,8 +132,13 @@ void printReviews(struct dateSum **ratings, char *input, int *ratingCount, int *
 
     int targetRating = atoi(input);
     int bestSum, bestStartIndex, bestEndIndex;
+    int *usedIndexes = NULL;
 
-    findBestCombination(ratings, *ratingCount, targetRating, &bestSum, &bestStartIndex, &bestEndIndex);
+    findBestCombination(ratings, *ratingCount, targetRating, &bestSum, &bestStartIndex, &bestEndIndex, &usedIndexes);
+
+    if (usedIndexes != NULL) {
+        free(usedIndexes); 
+    }
 
     if (bestStartIndex != -1) {
         printf("%d-%02d-%02d - %d-%02d-%02d: %d\n",
@@ -158,9 +149,30 @@ void printReviews(struct dateSum **ratings, char *input, int *ratingCount, int *
 }  
 
 
-void printFullReviews(struct dateSum **ratings, int ratingCount, int targetRating) {
-        // TODO
+void printFullReviews(struct myReviews **reviews, struct dateSum **ratings, int reviewCount, int ratingCount, int targetRating) {
+    int bestSum, bestStartIndex, bestEndIndex;
+    int *usedIndexes;
+
+    findBestCombination(ratings, ratingCount, targetRating, &bestSum, &bestStartIndex, &bestEndIndex, &usedIndexes);
+
+    if (usedIndexes != NULL) {
+        printf("%d-%02d-%02d - %d-%02d-%02d: %d\n",
+               (*ratings)[bestStartIndex].year, (*ratings)[bestStartIndex].month, (*ratings)[bestStartIndex].day,
+               (*ratings)[bestEndIndex].year, (*ratings)[bestEndIndex].month, (*ratings)[bestEndIndex].day,
+               bestSum);
+        for (int i = 0; i < ratingCount; i++) {
+            if (usedIndexes[i]) {
+                for (int j = 0; j < reviewCount; j++) {
+                    if ((*reviews)[j].year == (*ratings)[i].year && (*reviews)[j].month == (*ratings)[i].month && (*reviews)[j].day == (*ratings)[i].day) {
+                        printf("  %d: %s\n", (*reviews)[j].rating, (*reviews)[j].reviewName);
+                    }
+                }
+            }
+        }
+        free(usedIndexes);
+    } 
 }
+
 
 
 
@@ -177,7 +189,7 @@ void getUserInput() {
                 addReview(&reviews, &ratings, inputLine + 2, &reviewCount, &ratingCount, &isSorted);
                 break;
             case '?':
-                 printFullReviews(&ratings, ratingCount, atoi(inputLine + 2));
+                 printFullReviews(&reviews, &ratings, reviewCount, ratingCount, atoi(inputLine + 2));
                 break;
             case '#':
                 printReviews(&ratings, inputLine + 2, &ratingCount, &isSorted);
