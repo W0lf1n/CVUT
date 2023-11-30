@@ -47,11 +47,24 @@ const char *t9ToLetters(char digit) {
 void addToPhonebook(char *inputLine, Phonebook **phonebookArray, int *phonebookSize){
     char tempTelNumber[22];
     char *nameStart;
+    // Check for the required pattern
+    if (inputLine[0] == ' ') {
+        printf("Nespravny vstup.\n");
+        return;
+    }
 
     // Extract the phone number into a temporary buffer
     if (sscanf(inputLine, "%21s", tempTelNumber) != 1) {
         printf("Nespravny vstup.\n");
         return;
+    }
+
+    // Check if the number contains only digits
+    for (char *p = tempTelNumber; *p; p++) {
+        if (!isdigit((unsigned char)*p)) {
+            printf("Nespravny vstup.\n");
+            return;
+        }
     }
 
     // Check for the length of the phone number
@@ -67,6 +80,19 @@ void addToPhonebook(char *inputLine, Phonebook **phonebookArray, int *phonebookS
         printf("Nespravny vstup.\n");
         return;
     }
+    for(char *p = nameStart; *p; p++){
+        if(!isalpha(*p) && *p != ' '){
+            printf("Nespravny vstup.\n");
+            return;
+        }
+    }
+
+    // Check if the name does not end with the whitespace
+    char *endOfName = nameStart + strlen(nameStart) - 1;
+    if (*endOfName == ' ') {
+        printf("Nespravny vstup.\n");
+        return;
+    }
     
     // Check whether the contant exists
     for (int i = 0; i < *phonebookSize; i++) {
@@ -76,7 +102,6 @@ void addToPhonebook(char *inputLine, Phonebook **phonebookArray, int *phonebookS
             return;
         }
     }
-
     // Allocate and update new record to the phonebook
     Phonebook *newArray = (Phonebook *)realloc(*phonebookArray, (*phonebookSize + 1) * sizeof(Phonebook));
     // Check if the allocation was successful
@@ -216,6 +241,10 @@ void getUserInput(){
     int phonebookSize = 0;
     while(getline(&inputLine, &size, stdin) != -1){
         removeNewline(inputLine);
+        if(inputLine[1] != ' '){
+            printf("Nespravny vstup.\n");
+            continue;
+        }
         switch(inputLine[0]){
             case '+':
                 addToPhonebook(inputLine + 2, &phonebookArray, &phonebookSize);
@@ -225,7 +254,7 @@ void getUserInput(){
                 break;
             default:
                 printf("Nespravny vstup.\n");
-                exit(1);
+                break;
         }
     }
     free(inputLine);
