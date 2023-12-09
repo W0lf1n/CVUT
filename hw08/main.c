@@ -44,7 +44,7 @@ TCRIMINAL        * createRecord ( const char      * name,
  */
 void               freeList     ( TCRIMINAL       * src )
 {
-    while (src != NULL) {
+    while (src) {
         TCRIMINAL * temp = src;
         src = src->m_Next;
 
@@ -62,59 +62,52 @@ void               freeList     ( TCRIMINAL       * src )
  * @param src Pointer to the first element of the linked list to be copied.
  * @return Pointer to the first element of the newly created copied list, or NULL if it fails.
  */
-
-
-TCRIMINAL * cloneList ( TCRIMINAL * src ) {
+TCRIMINAL *cloneList(TCRIMINAL *src) {
     if (!src) return NULL;
 
-    TCRIMINAL * srcIter = src;
-    TCRIMINAL * newHead = NULL, *newTail = NULL, *temp;
+    TCRIMINAL *newHead = NULL, *newTail = NULL;
 
-    while (srcIter != NULL) {
-        temp = createRecord(srcIter->m_Name, NULL);
-        if (!temp) {
-            freeList(newHead); 
+    // Mapování originálního zločince na jeho kopii
+    TCRIMINAL *map[1000] = { NULL }; // Předpokládáme, že seznam nebude mít více než 1000 záznamů
+    int idx = 0;
+
+    // Vytvoření nových záznamů bez kontaktů
+    for (TCRIMINAL *iter = src; iter != NULL; iter = iter->m_Next) {
+        TCRIMINAL *copy = createRecord(iter->m_Name, NULL);
+        if (!copy) {
+            freeList(newHead);
             return NULL;
         }
 
-        if (newTail) {
-            newTail->m_Next = temp;
-        } else {
-            newHead = temp;
-        }
-        newTail = temp;
+        if (newTail) newTail->m_Next = copy;
+        else newHead = copy;
+        newTail = copy;
 
-        if (srcIter->m_Cnt > 0) {
-            temp->m_Contacts = (TCRIMINAL **)malloc(srcIter->m_Cnt * sizeof(TCRIMINAL *));
-            if (!temp->m_Contacts) {
-                freeList(newHead); 
+        if (iter->m_Cnt > 0) {
+            copy->m_Contacts = (TCRIMINAL **)malloc(iter->m_Cnt * sizeof(TCRIMINAL *));
+            if (!copy->m_Contacts) {
+                freeList(newHead);
                 return NULL;
             }
-            temp->m_Capacity = srcIter->m_Cnt;
-            temp->m_Cnt = srcIter->m_Cnt;
-            memset(temp->m_Contacts, 0, srcIter->m_Cnt * sizeof(TCRIMINAL *));
+            copy->m_Capacity = iter->m_Cnt;
+            copy->m_Cnt = iter->m_Cnt;
         }
 
-        srcIter = srcIter->m_Next;
+        map[idx++] = copy;
     }
 
-    srcIter = src;
-    TCRIMINAL * newIter = newHead;
-    while (srcIter != NULL) {
-        for (size_t i = 0; i < srcIter->m_Cnt; i++) {
-            TCRIMINAL * originalContact = srcIter->m_Contacts[i];
-            TCRIMINAL * newContact = newHead;
-
-            while (newContact != NULL) {
-                if (!strcmp(newContact->m_Name, originalContact->m_Name)) {
-                    newIter->m_Contacts[i] = newContact;
+    // Aktualizace kontaktů
+    idx = 0;
+    for (TCRIMINAL *iter = src; iter != NULL; iter = iter->m_Next, idx++) {
+        for (size_t i = 0; i < iter->m_Cnt; ++i) {
+            int contactIdx = 0;
+            for (TCRIMINAL *search = src; search != NULL; search = search->m_Next, contactIdx++) {
+                if (search == iter->m_Contacts[i]) {
+                    map[idx]->m_Contacts[i] = map[contactIdx];
                     break;
                 }
-                newContact = newContact->m_Next;
             }
         }
-        srcIter = srcIter->m_Next;
-        newIter = newIter->m_Next;
     }
 
     return newHead;
@@ -130,11 +123,9 @@ void               addContact   ( TCRIMINAL       * dst,
                                   TCRIMINAL       * contact )
 {
     if (dst->m_Cnt >= dst->m_Capacity) {
-        size_t newCapacity = dst->m_Capacity == 0 ? 1 : dst->m_Capacity * 2;
-        TCRIMINAL ** newContacts = (TCRIMINAL **)realloc(dst->m_Contacts, newCapacity * sizeof(TCRIMINAL *));
-        if (!newContacts) {
-            return;
-        }
+       size_t newCapacity = dst->m_Capacity == 0 ? 1 : dst->m_Capacity * 2;
+       TCRIMINAL **newContacts = (TCRIMINAL **)realloc(dst->m_Contacts, newCapacity * sizeof(TCRIMINAL *));
+       if (!newContacts) return;
         dst->m_Contacts = newContacts;
         dst->m_Capacity = newCapacity;
     }
