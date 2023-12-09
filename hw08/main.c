@@ -63,6 +63,7 @@ void               freeList     ( TCRIMINAL       * src )
  * @return Pointer to the first element of the newly created copied list, or NULL if it fails.
  */
 
+
 TCRIMINAL * cloneList ( TCRIMINAL * src ) {
     if (!src) return NULL;
 
@@ -91,6 +92,7 @@ TCRIMINAL * cloneList ( TCRIMINAL * src ) {
             }
             temp->m_Capacity = srcIter->m_Cnt;
             temp->m_Cnt = srcIter->m_Cnt;
+            memset(temp->m_Contacts, 0, srcIter->m_Cnt * sizeof(TCRIMINAL *));
         }
 
         srcIter = srcIter->m_Next;
@@ -103,7 +105,7 @@ TCRIMINAL * cloneList ( TCRIMINAL * src ) {
             TCRIMINAL * originalContact = srcIter->m_Contacts[i];
             TCRIMINAL * newContact = newHead;
 
-            while (newContact != NULL && originalContact != NULL) {
+            while (newContact != NULL) {
                 if (!strcmp(newContact->m_Name, originalContact->m_Name)) {
                     newIter->m_Contacts[i] = newContact;
                     break;
