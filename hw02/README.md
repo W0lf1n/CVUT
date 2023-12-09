@@ -28,3 +28,64 @@ Pokud je vstup neplatný, program to musí detekovat a zobrazit chybové hláše
 
 - méně než dvě vstupní zprávy,
 - zpráva nemá správný formát (nesmí být prázdná, musí obsahovat pouze písmena malé abecedy a právě jeden znak kolmítko).
+
+**Ukázka práce programu:**
+```
+Zpravy:
+ea|babab
+d|abaca
+Synchronizace za: 42
+
+Zpravy:
+acacbbaaa|
+cbbcabcbbaa|
+Synchronizace za: 0
+
+Zpravy:
+|acabbaaa
+|dcbabaaaa
+Synchronizace za: 0
+
+Zpravy:
+acacbbaa|baa
+bcaabaa|baaa
+Synchronizace za: 216
+
+Zpravy:
+cbbcbaa|aaaa
+aadaaaabaaa|abaa
+Nelze dosahnout.
+
+Zpravy:
+dbdccdccbbbbaa|aaaa
+bebbaedbcabbaa|ccbaa
+Synchronizace za: 276
+
+Zpravy:
+jfddiaggfdffaagfacafcfbbbgdcddbfaedfeaacfeadcbabbaaa|hdccdfdbfadcdbbcbbaa
+bhfdigdbggfadfdddacceaedbefeacbacaacbbbaa|cdcgebfichfbgcbjbhdfadgheifheceeehiceeedfbgcgaggfdaadacbdeccbaadbbabaa
+Synchronizace za: 5046543
+
+Zpravy:
+acacbb|aaa
+cbbcabcbbaa
+Nespravny vstup.
+
+Zpravy:
+acacbb|aaa
+cbbc abcb|baa
+Nespravny vstup.
+```
+
+**Poznámky:**
+- Ukázkové běhy zachycují očekávané výpisy Vašeho programu (tučné písmo) a vstupy zadané uživatelem (základní písmo). Zvýraznění tučným písmem je použité pouze zde na stránce zadání, aby byl výpis lépe čitelný. Váš program má za úkol pouze zobrazit text bez zvýrazňování (bez HTML markupu).
+- Znak odřádkování (\n) je i za poslední řádkou výstupu (i za případným chybovým hlášením).
+- Úlohu lze vyřešit bez použití funkcí. Pokud ale správně použijete funkce, bude program přehlednější a bude se snáze ladit.
+- Není potřeba alokovat pole. Práce s polem úlohu zbytečně zkomplikuje. Vstupy lze načítat průběžně a ukládat si pouze agregované hodnoty.
+- Pro načítání vstupu se hodí funkce **scanf** s formátem **%c** nebo funkce **fgetc**.
+- Hodnocení připouští různě dokonalá řešení, podle úrovně řešení budou přidělené body navíc:
+  - první bonus získá řešení, které dokáže pracovat s více než dvojicí zpráv na vstupu,
+  - druhý bonus získá řešení, které použije efektivní algoritmus výpočtu, a dokáže rychle pracovat i pro dlouhé zprávy,
+  - třetí bonus získá řešení, které použije efektivní algoritmus výpočtu, a dokáže rychle pracovat i pro velmi dlouhé zprávy.
+- Pro výpočty v základních testech stačí datový typ int. Pro zvládnutí druhého a třetího bonusu je potřeba pracovat s velkými čísly, která překračují rozsah typu int. Doporučený je datový typ **long int** nebo **long long int**. Pro zvládnutí třetího bonusu (a s některými algoritmy i pro druhý bonus) budete dokonce muset ukládat mezivýsledky v typu **__int128_t** (tento typ je nestandardní, má rozsah 128 bitů, neexistuje pro něj standardní vstupní a výstupní konverze, ale lze jej použít v aritmetických operacích).
+

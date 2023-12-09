@@ -12,9 +12,6 @@ Program musí být schopen detekovat nesprávný vstup. Pokud je na vstupu nesmy
 
 Při programování si dejte pozor na přesnou podobu výpisů. Výstup Vašeho programu kontroluje stroj, který požaduje přesnou shodu výstupů Vašeho programu s výstupy referenčními. Za chybu je považováno, pokud se výpis liší. I chybějící nebo přebývající mezera/odřádkování je považováno za chybu. Abyste tyto problémy rychle vyloučili, použijte přiložený archiv se sadou vstupních a očekávaných výstupních dat. Podívejte se na videotutoriály (courses -> videotutoriály -> Testování), jak testovací data použít a jak testování zautomatizovat.
 
----
----
-
 **Ukázka práce programu:**
 ```
 Bod #1:
