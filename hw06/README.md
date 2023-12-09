@@ -36,4 +36,140 @@ Před implementací programu si rozmyslete, jakým způsobem budete telefonní s
 
 Vyhledávání může trvat velmi dlouho, zejména pokud je telefonní seznam dlouhý. Časové limity jsou nastavené tak, že rozumně implementovaný základní algoritmus vyhledávání projde všemi testy kromě testu bonusového. Bonusový test vyžaduje pokročilý algoritmus vyhledávání.
 
+**Ukázka práce programu:**
+```
++ 123456 Vagner Ladislav
+OK
++ 987654321 Vanerka Jiri
+OK
++ 824637 Vagner Jiri
+OK
++ 8244278 Balik Miroslav
+OK
++ 8243245 Vaclavik
+OK
++ 192837 Taggart John
+OK
++ 98244212 Vogel Josef
+OK
+? 824
+123456 Vagner Ladislav
+824637 Vagner Jiri
+8244278 Balik Miroslav
+8243245 Vaclavik
+192837 Taggart John
+Celkem: 5
+? 82
+123456 Vagner Ladislav
+987654321 Vanerka Jiri
+824637 Vagner Jiri
+8244278 Balik Miroslav
+8243245 Vaclavik
+192837 Taggart John
+Celkem: 6
+? 37
+Celkem: 0
++ 1000001 Vacatko
+OK
++ 1000002 Vaclavek
+OK
++ 1000003 Vaclavkova
+OK
++ 1000006 Vagner Ladislav
+OK
++ 1000007 Vacek
+OK
++ 1000008 Vachek
+OK
++ 1000009 Varga
+OK
+? 824
+123456 Vagner Ladislav
+824637 Vagner Jiri
+8244278 Balik Miroslav
+8243245 Vaclavik
+192837 Taggart John
+1000006 Vagner Ladislav
+Celkem: 6
+? 82
+Celkem: 13
++ 123456 Novakova
+OK
+? 123
+123456 Vagner Ladislav
+123456 Novakova
+Celkem: 2
+? 123456
+123456 Vagner Ladislav
+123456 Novakova
+Celkem: 2
+? 1234567
+Celkem: 0
+? 10000
+1000001 Vacatko
+1000002 Vaclavek
+1000003 Vaclavkova
+1000006 Vagner Ladislav
+1000007 Vacek
+1000008 Vachek
+1000009 Varga
+Celkem: 7
++ 123456 Novakova Jana
+OK
++ 234567 Novakova Jana
+OK
++ 123456 Novakova Jana
+Kontakt jiz existuje.
++ 123456 Novakova Jana
+Kontakt jiz existuje.
++ 123456 novakova Jana
+OK
+? 123456
+123456 Vagner Ladislav
+123456 Novakova
+123456 Novakova Jana
+123456 novakova Jana
+Celkem: 4
++ 123456 test
+OK
++ 1234567 test
+OK
++ 123456 testtest
+OK
++ 123456 test
+Kontakt jiz existuje.
++ 123456    test
+Nespravny vstup.
++ 123456789012345678901234567890 foo
+Nespravny vstup.
+? test
+Nespravny vstup.
+?
+Nespravny vstup.
+test
+Nespravny vstup.
+```
 
+**Poznámky:**
+- V ukázkovém běhu programu jsou vizuálně odlišené uživatelské vstupy (standardní font) a výpisy programu (tučné písmo). Toto rozlišení je použité pouze zde na WWW stránce zadání problému, aby se výpis snáze četl. Realizovaný program musí zobrazovat text bez dalších úprav (nepoužívá žádný markup), viz též přiložené soubory.
+- Znak odřádkování (\n) je i za poslední řádkou výstupu (i za případným chybovým hlášením).
+- Pro reprezentaci tel. čísel nepoužívejte datový typ int.
+- Program nelze vytvořit bez dynamické alokace paměti.
+- V programu používejte prostředky jazyka C, nepoužívejte C++ (STL).
+- Při načítání dat ze vstupu je potřeba rozumně efektivní implementace. Pokud byste potřebovali zvětšovat velikost nějakého dynamicky alokovaného pole, nezvětšujte jej po jednotlivých prvcích.
+- Vyplatí se načítat jednotlivé řádky na vstupu a zpracovávat je jako řetězce v paměti.
+- **T9 kódování** (malá i velká písmena):
+```
+   ABC    2
+   DEF    3
+   GHI    4
+   JKL    5
+   MNO    6
+   PQRS   7
+   TUV    8
+   WXYZ   9
+   mezera 1   
+```
+
+- Pořadí nalezených kontaktů v odpovědi programu není důležité. Testovací prostředí si pořadí odpovědí před porovnáním upraví.
+- Řešení této úlohy, které projde všemi závaznými a nepovinnými testy na 100%, může být použito pro code review (pro code review není požadované zvládnutí testu rychlosti).
