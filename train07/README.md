@@ -28,3 +28,73 @@ Pokud je vstup neplatný, program to musí detekovat a zobrazit chybové hláše
 - chybějící strana nebo počet hlasů,
 - počet hlasů je nulový nebo záporný,
 - počet míst v dolech není kladný.
+
+**Ukázka práce programu:**
+```
+Pocet stran:
+3
+Strany a pocet hlasu:
+A 100
+B 60
+C 45
+Pocet horniku:
+3
+Pridelene pocty:
+A: 2
+B: 1
+C: 0
+
+Pocet stran:
+3
+Strany a pocet hlasu:
+A 70
+B 42
+C 32
+Pocet horniku:
+3
+Pridelene pocty:
+A: 2
+B: 1
+C: 0
+
+Pocet stran:
+5
+Strany a pocet hlasu:
+C 24823
+A 83647
+D 20646
+B 63181
+E 9131
+Pocet horniku:
+8
+Pridelene pocty:
+A: 4
+B: 3
+C: 1
+D: 0
+E: 0
+
+Pocet stran:
+2
+Strany a pocet hlasu:
+A 10
+B 10
+Pocet horniku:
+1
+Nelze rozdelit.
+
+Pocet stran:
+2
+Strany a pocet hlasu:
+A 100
+A 200
+Nespravny vstup.
+```
+
+**Poznámky:**
+
+- Ukázkové běhy zachycují očekávané výpisy Vašeho programu (tučné písmo) a vstupy zadané uživatelem (základní písmo). Zvýraznění tučným písmem je použité pouze zde na stránce zadání, aby byl výpis lépe čitelný. Váš program má za úkol zobrazit text bez zvýrazňování (bez HTML markupu).
+- Povinné a nepovinné testy nepředpokládají situaci, kdy dochází k nerozhodnému počtu preferenčních bodů a nedostatku potřebných míst. Bonusový test zkouší zda zvládáte i takové situace. V ukázkovém běhu a v přiložených testovacích datech je ukázka běhu pro situaci, kdy dojde k rovnosti (2 strany, každá 10 hlasů, jedno místo k obsazení). Tato vstupní data jsou pouze v ukázkách, při testování na Progtestu jsou ze základního testu vynechaná.
+- Znak odřádkování (\n) je i za poslední řádkou výstupu (i za případným chybovým hlášením).
+- Při programování si dejte pozor na přesnou podobu výpisů. Výstup Vašeho programu kontroluje stroj, který požaduje přesnou shodu výstupů Vašeho programu s výstupy referenčními. Za chybu je považováno, pokud se výpis liší. I chybějící nebo přebývající mezera/odřádkování je považováno za chybu. Abyste tyto problémy rychle vyloučili, použijte přiložený archiv se sadou vstupních a očekávaných výstupních dat. Podívejte se na videotutoriál (Courses -> Video tutoriály), jak testovací data použít a jak testování zautomatizovat.
+- Váš program bude spouštěn v omezeném testovacím prostředí. Je omezen dobou běhu (limit je vidět v logu referenčního řešení) a dále je omezena i velikost dostupné paměti (ale tato úloha by ani s jedním omezením neměla mít problém).
